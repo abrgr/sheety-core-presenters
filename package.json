@@ -5,24 +5,23 @@
   "description": "Core presenters used in sheety apps",
   "author": "Adam Berger",
   "license": "UNLICENSED",
+  "main": "dist/app/index.js",
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-preset-env": "^1.6.1",
     "firebaseui": "^2.6.1",
     "immutable": "^3.8.2",
     "quilljs": "^0.18.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-handsontable": "^0.3.1",
-    "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
     "sheety-model": "https://github.com/abrgr/sheety-model.git#9e39d24179704040476f05c8438d5ade50679aca",
     "url": "^0.11.0",
-    "uuid": "^3.2.1",
-    "whatwg-fetch": "^2.0.3"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
     "bootstrap": "^4.0.0",
     "create-react-class": "^15.6.2",
     "react-scripts": "1.1.0"
