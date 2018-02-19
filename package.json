@@ -6,6 +6,9 @@
   "author": "Adam Berger",
   "license": "UNLICENSED",
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
     "firebaseui": "^2.6.1",
     "immutable": "^3.8.2",
     "quilljs": "^0.18.1",
@@ -26,7 +29,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "babel src --out-dir dist --source-maps",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
