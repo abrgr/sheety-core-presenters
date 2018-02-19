@@ -1,0 +1,33 @@
+{
+  "name": "sheety-core-presenters",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Core presenters used in sheety apps",
+  "author": "Adam Berger",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "firebaseui": "^2.6.1",
+    "immutable": "^3.8.2",
+    "quilljs": "^0.18.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-handsontable": "^0.3.1",
+    "react-redux": "^5.0.6",
+    "react-router-dom": "^4.2.2",
+    "sheety-model": "https://github.com/abrgr/sheety-model.git#9e39d24179704040476f05c8438d5ade50679aca",
+    "url": "^0.11.0",
+    "uuid": "^3.2.1",
+    "whatwg-fetch": "^2.0.3"
+  },
+  "devDependencies": {
+    "bootstrap": "^4.0.0",
+    "create-react-class": "^15.6.2",
+    "react-scripts": "1.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
