@@ -1,9 +1,9 @@
 import React from 'react';
-import { Map } from 'immutable';
+import { Map, List } from 'immutable';
 
 export default function makeGridPresenter(presenter) {
-  const GridPresenter = ({ config, renderPresenter }) => {
-    const rows = config.get('rows');
+  const GridPresenter = ({ config = new Map(), renderPresenter }) => {
+    const rows = config.get('rows', new List());
 
     return (
       <div className="container">
@@ -16,7 +16,9 @@ export default function makeGridPresenter(presenter) {
               <div
                 key={`cell-${cellIdx}`}
                 className={`col-${cell.get('width')}`}>
-                {cell.has('presenter') ? renderPresenter(cell.get('presenter')) : null}
+                {!!cell.get('presenter')
+                  ? renderPresenter(cell.get('presenter'))
+                  : null}
               </div>
             ))}
           </div>

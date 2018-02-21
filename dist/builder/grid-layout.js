@@ -17,7 +17,9 @@ function makeGridPresenter(presenter) {
   var GridPresenter = function GridPresenter(_ref) {
     var _ref$config = _ref.config,
         config = _ref$config === undefined ? new _immutable.Map() : _ref$config,
-        renderPresenter = _ref.renderPresenter;
+        renderPresenter = _ref.renderPresenter,
+        path = _ref.path,
+        onSelectPresenterForEditing = _ref.onSelectPresenterForEditing;
 
     var rows = config.get('rows', new _immutable.List());
 
@@ -32,12 +34,23 @@ function makeGridPresenter(presenter) {
             style: { marginTop: 20, marginBottom: 20 },
             className: 'row' },
           row.map(function (cell, cellIdx) {
+            var cellPath = path.concat(['config', 'rows', rowIdx, cellIdx, 'presenter']);
+            var cellPresenter = cell.get('presenter');
+
             return _react2.default.createElement(
               'div',
               {
                 key: 'cell-' + cellIdx,
                 className: 'col-' + cell.get('width') },
-              !!cell.get('presenter') ? renderPresenter(cell.get('presenter')) : null
+              !!cellPresenter ? renderPresenter(cellPath, cellPresenter) : _react2.default.createElement(
+                'button',
+                {
+                  onClick: function onClick(evt) {
+                    evt.stopPropagation();
+                    onSelectPresenterForEditing(cellPath);
+                  } },
+                'Set presenter'
+              )
             );
           })
         );

@@ -5,8 +5,8 @@ import { Map, List } from 'immutable';
 import uuid from 'uuid';
 import { CellRef, CellRefRange } from 'sheety-model';
 
-export default function makeSheetPresenter(presenter) {
-  class Sheet_ extends Component {
+export default function makeSpreadsheetPresenter(presenter) {
+  class Spreadsheet_ extends Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -119,5 +119,5 @@ export default function makeSheetPresenter(presenter) {
       'showColumnHeaders': 'Boolean indicating whether to show column headers.',
       'showRowHeaders': 'Boolean indicating whether to show row headers.'
     })
-  })(Sheet_);
+  })(Spreadsheet_);
 }
