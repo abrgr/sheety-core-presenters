@@ -9,8 +9,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = require('immutable');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function makeTextPresenter(presenter) {
@@ -26,11 +24,6 @@ function makeTextPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new _immutable.Map({}),
-    mapDataDocs: new _immutable.Map({
-      text: 'Text to render'
-    })
-  })(TextPresenter);
+  return presenter()(TextPresenter);
 }
 //# sourceMappingURL=text.js.map

@@ -45,10 +45,6 @@ function makeGridPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new _immutable.Map({
-      rows: 'rows is an iterable of row iterables.  Each row iterable is composed of cell descriptors.  Each cell descriptor is an object/map like { width, presenter }, where width is a value from 1-12 and presenter is a presenter definition.'
-    })
-  })(GridPresenter);
+  return presenter()(GridPresenter);
 }
 //# sourceMappingURL=grid-layout.js.map

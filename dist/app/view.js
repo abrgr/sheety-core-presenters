@@ -9,8 +9,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = require('immutable');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function makeBackgroundPresenter(presenter) {
@@ -28,24 +26,6 @@ function makeBackgroundPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new _immutable.Map({
-      backgroundColor: 'String background color suitable for css backgroundColor property',
-      color: 'String color suitable for css color property',
-      borderRadius: 'Border radius suitable for css border radius',
-      width: 'Width of the cell',
-      height: 'Height of the cell',
-      minWidth: 'Minimum width of the cell',
-      maxWidth: 'Maximum width of the cell',
-      minHeight: 'Minimum height of the cell',
-      maxHeight: 'Maximum height of the cell',
-      textAlign: 'Text alignment of the cell',
-      marginTop: 'Top margin',
-      marginBottom: 'Bottom margin',
-      marginLeft: 'Left margin',
-      marginRight: 'Right margin',
-      presenter: 'Inner presenter definition'
-    })
-  })(BackgroundPresenter);
+  return presenter()(BackgroundPresenter);
 }
 //# sourceMappingURL=view.js.map

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Map } from 'immutable';
 
 export default function makeTextPresenter(presenter) {
   const TextPresenter = ({ mapData }) => {
@@ -12,11 +11,5 @@ export default function makeTextPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new Map({
-    }),
-    mapDataDocs: new Map({
-      text: 'Text to render'
-    })
-  })(TextPresenter);
+  return presenter()(TextPresenter);
 }

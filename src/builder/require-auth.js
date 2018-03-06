@@ -1,107 +1,96 @@
 import React, { Component } from 'react';
-import { Map } from 'immutable';
+import { fromJS, List } from 'immutable';
+import { Tabs, Tab } from 'material-ui/Tabs';
 import firebaseui from 'firebaseui';
 import uuid from 'uuid';
 
 import 'firebaseui/dist/firebaseui.css';
 
-export default function makeRequireAuthPresenter(presenter, deps) {
-  const firebasePromise = deps.firebasePromise;
-  if ( !firebasePromise ) {
-    return () => {
-      throw new Error('RequireAuthPresenter requires a firebasePromise dependency.  It should only be resolved once we have an auth state.');
-    };
-  }
-
+export default function makeRequireAuthPresenter(presenter) {
   class RequireAuthPresenter extends Component {
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        id: `auth-${uuid.v4()}`, // element ids must start with a letter
-        isAuthed: false
-      };
-    }
-
-    authenticated = () => {
-      this.setState({
-        isAuthed: true
-      });
-    };
-
-    isAuthenticated = (auth) => (
-      // TODO: check roles, etc.
-      auth.currentUser && !auth.currentUser.isAnonymous
-    );
-
-    componentDidMount() {
-      firebasePromise.then(firebase => {
-        const auth = firebase.auth();
-        if ( this.isAuthenticated(auth) ) {
-          return this.authenticated();
-        }
-
-        // not authenticated yet
-        const ui = new firebaseui.auth.AuthUI(auth);
-        ui.start(
-          `#${this.state.id}`,
-          {
-            autoUpgradeAnonymousUsers: true,
-            signInSuccessUrl: window.location.href,
-            tosUrl: 'https://ezbds.com',
-            signInOptions: [
-              firebase.auth.EmailAuthProvider.PROVIDER_ID,
-              {
-                provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID
-              }
-            ],
-            callbacks: {
-              signInSuccess: (user, cred, redirectUrl) => {
-                if ( cred && cred.providerId === 'google.com' ) {
-                  // cred.accessToken is the google oauth access token
-                }
-
-                this.authenticated();
-
-                return true;
-              },
-              signInFailure: (err) => {
-                if ( err.code !== 'firebaseui/anonymous-upgrade-merge-conflict' ) {
-                  return Promise.resolve();
-                }
-
-                const anonymousUser = auth.currentUser;
-                const cred = err.credential;
-
-                // TODO: actually copy data per https://github.com/firebase/firebaseui-web#using-firebaseui-for-authentication
-
-                return auth.signInWithCredential(cred)
-                           .then(_ => anonymousUser.delete())
-                           .then(_ => this.authenticated());
-              }
-            }
-          }
-        );
-      });
-    }
-
     render() {
-      const { id, isAuthed } = this.state;
-
-      if ( isAuthed ) {
-        const { renderPresenter, config } = this.props;
-        return renderPresenter(config.get('presenter'));
-      }
+      const { renderPresenter, config } = this.props;
 
       return (
-        <div id={id} />
+        <Tabs>
+          <Tab
+            label="Logged in">
+            {renderPresenter(['config', 'presenter'], config.get('presenter'))}
+          </Tab>
+          <Tab
+            label="Not logged in">
+            {config.get('signInContent') ? renderPresenter(['config', 'signInContent'], config.get('signInContent')) : null}
+            {config.get('providers', new List())
+                   .filter(providerConfig => !!providerConfig)
+                   .map(providerConfig => (
+                     <p>Sign in with {providerConfig.get('provider')}.</p>
+                   ))}
+          </Tab>
+        </Tabs>
       );
     }
   };
 
   return presenter({
-    configKeyDocs: new Map({
-      presenter: 'Inner presenter definition'
-    })
+    schema: fromJS({
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/require-auth.json",
+      "title": "Require Authentication",
+      "description": "Shows an authentication prompt if not logged in; shows the provided presenter otherwise.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Identifier",
+          "description": "A unique identifier for this presenter.  Used for analytics events.",
+          "type": "string",
+          "default": ""
+        },
+        "type": {
+          "const": "require-auth",
+          "default": "require-auth"
+        },
+        "config": {
+          "title": "Configuration",
+          "description": "Pre-specified configuration",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "presenter": {
+              "title": "Presenter",
+              "description": "The presenter to render if the user is already authenticated.",
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+            },
+            "usePopup": {
+              "title": "Use popup",
+              "description": "Should we use a popup for sign in?",
+              "type": "boolean",
+              "default": false
+            },
+            "signInContent": {
+              "title": "Sign in content",
+              "description": "The presenter to render above the sign in",
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+            },
+            "providers": {
+              "title": "Log in providers",
+              "type": "array",
+              "default": [],
+              "items": {
+                "title": "Log in provider",
+                "type": "object",
+                "default": {},
+                "properties": {
+                  "provider": {
+                    "title": "Provider",
+                    "type": "string",
+                    "enum": ["google", "facebook", "twitter", "github", "email"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }),
   })(RequireAuthPresenter);
 }

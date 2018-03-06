@@ -12,8 +12,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = require('immutable');
-
 var _firebaseui = require('firebaseui');
 
 var _firebaseui2 = _interopRequireDefault(_firebaseui);
@@ -79,15 +77,29 @@ function makeRequireAuthPresenter(presenter, deps) {
             return _this2.authenticated();
           }
 
+          var config = _this2.props.config;
+
           // not authenticated yet
+
           var ui = new _firebaseui2.default.auth.AuthUI(auth);
           ui.start('#' + _this2.state.id, {
             autoUpgradeAnonymousUsers: true,
             signInSuccessUrl: window.location.href,
-            tosUrl: 'https://ezbds.com',
-            signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID, {
-              provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID
-            }],
+            tosUrl: config.get('tosUrl'),
+            signInFlow: !!config.get('usePopup') ? 'popup' : 'redirect',
+            signInOptions: config.get('providers').filter(function (p) {
+              return !!p;
+            }).map(function (providerConfig) {
+              return {
+                email: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                google: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                facebook: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                twitter: firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+                github: firebase.auth.GithubAuthProvider.PROVIDER_ID
+              }[providerConfig.get('provider')];
+            }).filter(function (p) {
+              return !!p;
+            }).toJS(),
             callbacks: {
               signInSuccess: function signInSuccess(user, cred, redirectUrl) {
                 if (cred && cred.providerId === 'google.com') {
@@ -124,17 +136,21 @@ function makeRequireAuthPresenter(presenter, deps) {
         var _state = this.state,
             id = _state.id,
             isAuthed = _state.isAuthed;
+        var _props = this.props,
+            renderPresenter = _props.renderPresenter,
+            config = _props.config;
 
 
         if (isAuthed) {
-          var _props = this.props,
-              renderPresenter = _props.renderPresenter,
-              config = _props.config;
-
-          return renderPresenter(config.get('presenter'));
+          return config.get('presenter') ? renderPresenter(config.get('presenter')) : null;
         }
 
-        return _react2.default.createElement('div', { id: id });
+        return _react2.default.createElement(
+          'div',
+          null,
+          config.get('signInContent') ? renderPresenter(config.get('signInContent')) : null,
+          _react2.default.createElement('div', { id: id })
+        );
       }
     }]);
 
@@ -143,10 +159,6 @@ function makeRequireAuthPresenter(presenter, deps) {
 
   ;
 
-  return presenter({
-    configKeyDocs: new _immutable.Map({
-      presenter: 'Inner presenter definition'
-    })
-  })(RequireAuthPresenter);
+  return presenter()(RequireAuthPresenter);
 }
 //# sourceMappingURL=require-auth.js.map

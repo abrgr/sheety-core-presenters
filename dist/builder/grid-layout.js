@@ -59,8 +59,60 @@ function makeGridPresenter(presenter) {
   };
 
   return presenter({
-    configKeyDocs: new _immutable.Map({
-      rows: 'rows is an iterable of row iterables.  Each row iterable is composed of cell descriptors.  Each cell descriptor is an object/map like { width, presenter }, where width is a value from 1-12 and presenter is a presenter definition.'
+    schema: (0, _immutable.fromJS)({
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/grid-layout.json",
+      "title": "Grid Layout",
+      "description": "Grid Layout renders other presenters in a grid.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Identifier",
+          "description": "A unique identifier for this presenter.  Used for analytics events.",
+          "type": "string",
+          "default": ""
+        },
+        "type": {
+          "const": "grid-layout",
+          "default": "grid-layout"
+        },
+        "config": {
+          "title": "Configuration",
+          "description": "Pre-specified configuration",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "rows": {
+              "title": "Rows",
+              "description": "Specifies a row of the grid.",
+              "type": "array",
+              "items": {
+                "title": "Row",
+                "type": "array",
+                "items": {
+                  "title": "Cell",
+                  "type": "object",
+                  "default": {},
+                  "properties": {
+                    "width": {
+                      "title": "Width",
+                      "description": "Number of columns this presenter will occupy.",
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 12
+                    },
+                    "presenter": {
+                      "title": "Presenter",
+                      "description": "The presenter to render in this cell.",
+                      "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     })
   })(GridPresenter);
 }

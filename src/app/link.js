@@ -1,5 +1,4 @@
 import React from 'react';
-import { Map } from 'immutable';
 import { Link } from 'react-router-dom'
 import URL from 'url';
 
@@ -25,12 +24,5 @@ export default function makeLinkPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new Map({
-      presenter: 'Inner presenter definition'
-    }),
-    mapDataDocs: new Map({
-      url: 'URL to link to'
-    })
-  })(LinkPresenter);
+  return presenter()(LinkPresenter);
 }

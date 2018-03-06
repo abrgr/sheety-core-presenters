@@ -47,13 +47,22 @@ function makeSpreadsheetPresenter(presenter) {
 
       var _this = _possibleConstructorReturn(this, (Spreadsheet_.__proto__ || Object.getPrototypeOf(Spreadsheet_)).call(this, props));
 
-      _this.onAfterChange = function (changes, sources) {
+      _this.onAfterChange = function (changes, source) {
+        if (source === 'loadData') {
+          return;
+        }
+
         var _this$props = _this.props,
             arrayDataQuery = _this$props.arrayDataQuery,
             setCellValues = _this$props.setCellValues,
             sheet = _this$props.sheet;
 
         var rangeRef = _sheetyModel.CellRefRange.fromA1Ref(arrayDataQuery);
+
+        if (!rangeRef) {
+          return;
+        }
+
         var upperLeft = rangeRef.get('start');
         var tabId = upperLeft.get('tabId');
         var upperLeftRow = upperLeft.get('rowIdx');
@@ -96,12 +105,20 @@ function makeSpreadsheetPresenter(presenter) {
       };
 
       _this.getCellConfig = function (row, col) {
-        var arrayCells = _this.props.arrayCells;
+        var config = _this.props.config;
 
-        var cell = arrayCells[row][col];
+        var userEditableRanges = config ? config.get('userEditableRanges', new _immutable.List()) : new _immutable.List();
+        var isUserEditable = userEditableRanges.some(function (range) {
+          if (range.indexOf(':') > 0) {
+            return rangeContains(_sheetyModel.CellRefRange.fromA1Ref(range), row, col);
+          }
+
+          var ref = _sheetyModel.CellRef.fromA1Ref(range);
+          return ref.get('rowIdx') === row && ref.get('colIdx') === col;
+        });
 
         return {
-          readOnly: cell && cell.get('isUserEditable') ? false : true,
+          readOnly: !isUserEditable,
           renderer: _this.cellRenderer
         };
       };
@@ -112,12 +129,13 @@ function makeSpreadsheetPresenter(presenter) {
         var config = _this.props.config;
 
         var formatting = config && config.get('formatting');
-        var format = formatting && formatting.find(function (format, a1Range) {
-          return rangeContains(_sheetyModel.CellRefRange.fromA1Ref(a1Range), row, col);
+        var format = formatting && formatting.find(function (format) {
+          var range = _sheetyModel.CellRefRange.fromA1Ref(format.get('range'));
+          return range && rangeContains(range, row, col);
         });
 
-        if (format) {
-          format.forEach(function (value, key) {
+        if (format && !!format.get('style')) {
+          format.get('style').forEach(function (value, key) {
             td.style[key] = value;
           });
         }
@@ -159,14 +177,7 @@ function makeSpreadsheetPresenter(presenter) {
   }
 
   return presenter({
-    formatted: true,
-    arrayDataDocs: 'An A1 reference to the data to show',
-    configKeyDocs: new _immutable.Map({
-      'formatting': 'Map from A1 range references to a map from css property name to value.',
-      'merges': 'List of A1 ranges where the cells in each range will be merged.',
-      'showColumnHeaders': 'Boolean indicating whether to show column headers.',
-      'showRowHeaders': 'Boolean indicating whether to show row headers.'
-    })
+    formatted: true
   })(Spreadsheet_);
 }
 //# sourceMappingURL=spreadsheet.js.map

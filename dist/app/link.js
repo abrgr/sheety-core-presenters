@@ -9,8 +9,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = require('immutable');
-
 var _reactRouterDom = require('react-router-dom');
 
 var _url = require('url');
@@ -45,13 +43,6 @@ function makeLinkPresenter(presenter) {
     );
   };
 
-  return presenter({
-    configKeyDocs: new _immutable.Map({
-      presenter: 'Inner presenter definition'
-    }),
-    mapDataDocs: new _immutable.Map({
-      url: 'URL to link to'
-    })
-  })(LinkPresenter);
+  return presenter()(LinkPresenter);
 }
 //# sourceMappingURL=link.js.map

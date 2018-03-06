@@ -27,7 +27,7 @@ function makeLinkPresenter(presenter) {
 
     var presenter = config.get('presenter');
     var url = mapData.get('url');
-    var child = presenter ? renderPresenter(presenter) : null;
+    var child = presenter ? renderPresenter(['config', 'presenter'], presenter) : null;
     var isExternalLink = _url2.default.parse(url).host;
 
     if (isExternalLink) {
@@ -46,11 +46,51 @@ function makeLinkPresenter(presenter) {
   };
 
   return presenter({
-    configKeyDocs: new _immutable.Map({
-      presenter: 'Inner presenter definition'
-    }),
-    mapDataDocs: new _immutable.Map({
-      url: 'URL to link to'
+    schema: (0, _immutable.fromJS)({
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/link.json",
+      "title": "Link",
+      "description": "Internal or external links",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Identifier",
+          "description": "A unique identifier for this presenter.  Used for analytics events.",
+          "type": "string",
+          "default": ""
+        },
+        "type": {
+          "const": "link",
+          "default": "link"
+        },
+        "mapData": {
+          "title": "Spreadsheet data",
+          "description": "Formulas that will be evaluated against the spreadsheet",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "url": {
+              "title": "URL",
+              "description": "The URL to link to.",
+              "type": "string",
+              "default": ""
+            }
+          }
+        },
+        "config": {
+          "title": "Configuration",
+          "description": "Pre-specified configuration",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "presenter": {
+              "title": "Presenter",
+              "description": "The presenter to render that, when clicked, will take the user to the specified URL.",
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+            }
+          }
+        }
+      }
     })
   })(LinkPresenter);
 }

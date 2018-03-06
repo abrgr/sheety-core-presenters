@@ -15,7 +15,9 @@ exports.default = function (presenter) {
     Link: (0, _link2.default)(presenter, deps),
     Router: (0, _router2.default)(presenter, deps),
     RequireAuth: (0, _requireAuth2.default)(presenter, deps),
-    Content: (0, _content2.default)(presenter, deps)
+    Content: (0, _content2.default)(presenter, deps),
+    Select: (0, _select2.default)(presenter, deps),
+    Input: (0, _input2.default)(presenter, deps)
   };
 
   var presenterRegistry = deps.presenterRegistry;
@@ -29,6 +31,8 @@ exports.default = function (presenter) {
     presenterRegistry('router', presenters.Router);
     presenterRegistry('require-auth', presenters.RequireAuth);
     presenterRegistry('content', presenters.Content);
+    presenterRegistry('select', presenters.Select);
+    presenterRegistry('input', presenters.Input);
   }
 
   return presenters;
@@ -65,6 +69,14 @@ var _requireAuth2 = _interopRequireDefault(_requireAuth);
 var _content = require('./content');
 
 var _content2 = _interopRequireDefault(_content);
+
+var _select = require('./select');
+
+var _select2 = _interopRequireDefault(_select);
+
+var _input = require('./input');
+
+var _input2 = _interopRequireDefault(_input);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 //# sourceMappingURL=index.js.map

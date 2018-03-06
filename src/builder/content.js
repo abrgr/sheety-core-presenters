@@ -1,5 +1,5 @@
 import React from 'react';
-import { Map } from 'immutable';
+import { fromJS } from 'immutable';
 import sanitizer from '../sanitizer';
 
 export default function makeContentPresenter(presenter) {
@@ -8,7 +8,9 @@ export default function makeContentPresenter(presenter) {
     const sanitizedContent = sanitizer.sanitize(content, uriRewriter);
 
     return (
-      <div dangerouslySetInnerHTML={{__html: sanitizedContent}} />
+      <div
+        className='ql-editor'
+        dangerouslySetInnerHTML={{__html: sanitizedContent}} />
     );
   };
 
@@ -17,8 +19,38 @@ export default function makeContentPresenter(presenter) {
   }
 
   return presenter({
-    configKeyDocs: new Map({
-      content: 'HTML to render (will be sanitized)'
+    schema: fromJS({
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/content.json",
+      "title": "Content",
+      "description": "The Content presenter allows you to embed rich text, images, and video into your Sheety App.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "Identifier",
+          "description": "A unique identifier for this presenter.  Used for analytics events.",
+          "type": "string",
+          "default": ""
+        },
+        "type": {
+          "const": "content",
+          "default": "content"
+        },
+        "config": {
+          "title": "Configuration",
+          "description": "Pre-specified configuration",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "content": {
+              "title": "Content",
+              "description": "Rich content",
+              "default": "",
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/content.json"
+            }
+          }
+        }
+      }
     })
   })(ContentPresenter);
 }

@@ -32,9 +32,18 @@ export default function makeSpreadsheetPresenter(presenter) {
       );
     }
 
-    onAfterChange = (changes, sources) => {
+    onAfterChange = (changes, source) => {
+      if ( source === 'loadData' ) {
+        return;
+      }
+
       const { arrayDataQuery, setCellValues, sheet } = this.props;
       const rangeRef = CellRefRange.fromA1Ref(arrayDataQuery);
+
+      if ( !rangeRef ) {
+        return;
+      }
+
       const upperLeft = rangeRef.get('start');
       const tabId = upperLeft.get('tabId');
       const upperLeftRow = upperLeft.get('rowIdx');
@@ -77,11 +86,19 @@ export default function makeSpreadsheetPresenter(presenter) {
     };
 
     getCellConfig = (row, col) => {
-      const { arrayCells } = this.props;
-      const cell = arrayCells[row][col];
+      const { config } = this.props;
+      const userEditableRanges = config ? config.get('userEditableRanges', new List()) : new List();
+      const isUserEditable = userEditableRanges.some(range => {
+        if ( range.indexOf(':') > 0 ) {
+          return rangeContains(CellRefRange.fromA1Ref(range), row, col);
+        }
+
+        const ref = CellRef.fromA1Ref(range);
+        return ref.get('rowIdx') === row && ref.get('colIdx') === col;
+      });
 
       return {
-        readOnly: cell && cell.get('isUserEditable') ? false : true,
+        readOnly: !isUserEditable,
         renderer: this.cellRenderer
       };
     };
@@ -91,12 +108,13 @@ export default function makeSpreadsheetPresenter(presenter) {
 
       const { config } = this.props;
       const formatting = config && config.get('formatting');
-      const format = formatting && formatting.find((format, a1Range) => (
-        rangeContains(CellRefRange.fromA1Ref(a1Range), row, col)
-      ));
+      const format = formatting && formatting.find(format => {
+        const range = CellRefRange.fromA1Ref(format.get('range'));
+        return range && rangeContains(range, row, col)
+      });
 
-      if ( format ) {
-        format.forEach((value, key) => {
+      if ( format && !!format.get('style') ) {
+        format.get('style').forEach((value, key) => {
           td.style[key] = value;
         });
       }
@@ -111,13 +129,6 @@ export default function makeSpreadsheetPresenter(presenter) {
   }
 
   return presenter({
-    formatted: true,
-    arrayDataDocs: 'An A1 reference to the data to show',
-    configKeyDocs: new Map({
-      'formatting': 'Map from A1 range references to a map from css property name to value.',
-      'merges': 'List of A1 ranges where the cells in each range will be merged.',
-      'showColumnHeaders': 'Boolean indicating whether to show column headers.',
-      'showRowHeaders': 'Boolean indicating whether to show row headers.'
-    })
+    formatted: true
   })(Spreadsheet_);
 }

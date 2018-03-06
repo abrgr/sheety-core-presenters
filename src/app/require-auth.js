@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Map } from 'immutable';
 import firebaseui from 'firebaseui';
 import uuid from 'uuid';
 
@@ -41,6 +40,8 @@ export default function makeRequireAuthPresenter(presenter, deps) {
           return this.authenticated();
         }
 
+        const { config } = this.props;
+
         // not authenticated yet
         const ui = new firebaseui.auth.AuthUI(auth);
         ui.start(
@@ -48,13 +49,21 @@ export default function makeRequireAuthPresenter(presenter, deps) {
           {
             autoUpgradeAnonymousUsers: true,
             signInSuccessUrl: window.location.href,
-            tosUrl: 'https://ezbds.com',
-            signInOptions: [
-              firebase.auth.EmailAuthProvider.PROVIDER_ID,
-              {
-                provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID
-              }
-            ],
+            tosUrl: config.get('tosUrl'),
+            signInFlow: !!config.get('usePopup') ? 'popup' : 'redirect',
+            signInOptions: config.get('providers')
+                                 .filter(p => !!p)
+                                 .map(providerConfig => (
+                                   {
+                                     email: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                                     google: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                                     facebook: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                                     twitter: firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+                                     github: firebase.auth.GithubAuthProvider.PROVIDER_ID
+                                   }[providerConfig.get('provider')]
+                                 ))
+                                 .filter(p => !!p)
+                                 .toJS(),
             callbacks: {
               signInSuccess: (user, cred, redirectUrl) => {
                 if ( cred && cred.providerId === 'google.com' ) {
@@ -87,21 +96,20 @@ export default function makeRequireAuthPresenter(presenter, deps) {
 
     render() {
       const { id, isAuthed } = this.state;
+      const { renderPresenter, config } = this.props;
 
       if ( isAuthed ) {
-        const { renderPresenter, config } = this.props;
-        return renderPresenter(config.get('presenter'));
+        return config.get('presenter') ? renderPresenter(config.get('presenter')) : null;
       }
 
       return (
-        <div id={id} />
+        <div>
+          {config.get('signInContent') ? renderPresenter(config.get('signInContent')) : null}
+          <div id={id} />
+        </div>
       );
     }
   };
 
-  return presenter({
-    configKeyDocs: new Map({
-      presenter: 'Inner presenter definition'
-    })
-  })(RequireAuthPresenter);
+  return presenter()(RequireAuthPresenter);
 }

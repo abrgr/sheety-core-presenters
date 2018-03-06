@@ -6,6 +6,8 @@ import Link from './link';
 import Router from './router';
 import RequireAuth from './require-auth'
 import Content from './content';
+import Select from './select';
+import Input from './input';
 
 export default function(presenter, deps = {}) {
   const presenters = { 
@@ -16,7 +18,9 @@ export default function(presenter, deps = {}) {
     Link: Link(presenter, deps),
     Router: Router(presenter, deps),
     RequireAuth: RequireAuth(presenter, deps),
-    Content: Content(presenter, deps)
+    Content: Content(presenter, deps),
+    Select: Select(presenter, deps),
+    Input: Input(presenter, deps)
   };
 
   const { presenterRegistry } = deps;
@@ -29,6 +33,8 @@ export default function(presenter, deps = {}) {
     presenterRegistry('router', presenters.Router);
     presenterRegistry('require-auth', presenters.RequireAuth);
     presenterRegistry('content', presenters.Content);
+    presenterRegistry('select', presenters.Select);
+    presenterRegistry('input', presenters.Input);
   }
 
   return presenters;
