@@ -15,14 +15,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function makeInputPresenter(presenter) {
   var InputPresenter = function InputPresenter(_ref) {
-    var config = _ref.config,
-        mapData = _ref.mapData,
-        calc = _ref.calc,
+    var mapData = _ref.mapData,
+        mapDataQuery = _ref.mapDataQuery,
         setCellValues = _ref.setCellValues;
 
-    var valueCell = config.get('value');
-    var value = calc.evaluateFormula(valueCell);
-    var inputType = config.get('inputType');
+    var value = mapData.get('value');
+    var inputType = mapData.get('inputType');
+    var valueCell = mapDataQuery.get('value');
 
     return _react2.default.createElement('input', {
       onChange: function onChange(evt) {
@@ -39,7 +38,7 @@ function makeInputPresenter(presenter) {
     schema: (0, _immutable.fromJS)({
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/input.json",
-      "title": "Text",
+      "title": "Input",
       "description": "The Input Presenter allows you to show users an input box with a value that is synced to a cell in your spreadsheet.",
       "type": "object",
       "properties": {
@@ -53,9 +52,9 @@ function makeInputPresenter(presenter) {
           "const": "input",
           "default": "input"
         },
-        "config": {
-          "title": "Configuration",
-          "description": "Pre-specified configuration",
+        "mapData": {
+          "title": "Options",
+          "description": "Formulas that will be evaluated against the spreadsheet",
           "type": "object",
           "default": {},
           "properties": {
@@ -76,6 +75,6 @@ function makeInputPresenter(presenter) {
         }
       }
     })
-  })(SelectPresenter);
+  })(InputPresenter);
 }
 //# sourceMappingURL=input.js.map

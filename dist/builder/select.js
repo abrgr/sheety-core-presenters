@@ -18,14 +18,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function makeSelectPresenter(presenter) {
   var SelectPresenter = function SelectPresenter(_ref) {
-    var config = _ref.config,
-        mapData = _ref.mapData,
-        calc = _ref.calc,
+    var mapData = _ref.mapData,
+        mapDataQuery = _ref.mapDataQuery,
         setCellValues = _ref.setCellValues;
 
-    var valueCell = config.get('value');
+    var value = mapData.get('value', null);
     var options = mapData.get('options', []);
-    var value = calc.evaluateFormula(valueCell);
+    var valueCell = mapDataQuery.get('value', '');
 
     return _react2.default.createElement(
       'select',
@@ -56,7 +55,7 @@ function makeSelectPresenter(presenter) {
     schema: (0, _immutable.fromJS)({
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/select.json",
-      "title": "Text",
+      "title": "Select",
       "description": "The Select Presenter allows you to show users a dropdown with options populated from your spreadsheet and a selected value that is synced to a cell in your spreadsheet.",
       "type": "object",
       "properties": {
@@ -79,17 +78,9 @@ function makeSelectPresenter(presenter) {
             "options": {
               "title": "Options",
               "description": "The result of this formula should be a 2-dimensional values and corresponding labels.",
-              "default": "",
+              "default": [],
               "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json"
-            }
-          }
-        },
-        "config": {
-          "title": "Configuration",
-          "description": "Pre-specified configuration",
-          "type": "object",
-          "default": {},
-          "properties": {
+            },
             "value": {
               "title": "Value",
               "description": "The cell to read and write the selected value to.",
