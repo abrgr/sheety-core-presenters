@@ -9,8 +9,11 @@ export default function makeContentPresenter(presenter) {
 
     return (
       <div
-        className='ql-editor'
-        dangerouslySetInnerHTML={{__html: sanitizedContent}} />
+        className='ql-snow'>
+        <div
+          className='ql-editor'
+          dangerouslySetInnerHTML={{__html: sanitizedContent}} />
+      </div>
     );
   };
 

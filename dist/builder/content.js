@@ -24,9 +24,14 @@ function makeContentPresenter(presenter) {
     var content = mapData.get('content');
     var sanitizedContent = _sanitizer2.default.sanitize(content, uriRewriter);
 
-    return _react2.default.createElement('div', {
-      className: 'ql-editor',
-      dangerouslySetInnerHTML: { __html: sanitizedContent } });
+    return _react2.default.createElement(
+      'div',
+      {
+        className: 'ql-snow' },
+      _react2.default.createElement('div', {
+        className: 'ql-editor',
+        dangerouslySetInnerHTML: { __html: sanitizedContent } })
+    );
   };
 
   function uriRewriter(uri) {

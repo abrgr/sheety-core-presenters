@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactQuill from 'react-quill';
 
-export default ({ value, onUpdate }) => (
+export default ({ value, encoders, decoders, onUpdate }) => (
   <ReactQuill
-    value={value || ''}
+    value={decoders.string(true, value)}
     modules={{
       toolbar: [
         [{ 'font': [] }],
@@ -20,6 +20,6 @@ export default ({ value, onUpdate }) => (
       ]
     }}
     onChange={html => {
-      onUpdate(html);
+      onUpdate(encoders.string(true, html));
     }} />
 );
