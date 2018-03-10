@@ -10,13 +10,17 @@ var _content = require('./content');
 
 var _content2 = _interopRequireDefault(_content);
 
-var _formula = require('./formula');
-
-var _formula2 = _interopRequireDefault(_formula);
-
 var _presenter = require('./presenter');
 
 var _presenter2 = _interopRequireDefault(_presenter);
+
+var _refRange = require('./ref-range');
+
+var _refRange2 = _interopRequireDefault(_refRange);
+
+var _refCell = require('./ref-cell');
+
+var _refCell2 = _interopRequireDefault(_refCell);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24,6 +28,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var configurersAndSchemasBySchemaURI = (0, _immutable.fromJS)({
   "http://sheetyapp.com/schemas/core-presenters/configurers/content.json": {
     configurer: _content2.default,
+    linkable: true,
     schema: {
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/content.json",
@@ -32,18 +37,9 @@ var configurersAndSchemasBySchemaURI = (0, _immutable.fromJS)({
       "type": "string"
     }
   },
-  "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json": {
-    configurer: _formula2.default,
-    schema: {
-      "$schema": "http://json-schema.org/schema#",
-      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json",
-      "title": "Spreadsheet formula to evaluate",
-      "description": "Spreadsheet formula to evaluate",
-      "type": "string"
-    }
-  },
   "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json": {
     configurer: _presenter2.default,
+    linkable: false,
     schema: {
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
@@ -77,6 +73,30 @@ var configurersAndSchemasBySchemaURI = (0, _immutable.fromJS)({
           "type": "object"
         }
       }
+    }
+  },
+  "http://sheetyapp.com/schemas/core-presenters/configurers/cell-range.json": {
+    configurer: _refRange2.default,
+    linkable: false,
+    schema: {
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/cell-range.json",
+      "title": "Range of cells",
+      "description": "Range of spreadsheet cells",
+      "type": "array",
+      "items": {
+        "type": "array"
+      }
+    }
+  },
+  "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json": {
+    configurer: _refCell2.default,
+    linkable: false,
+    schema: {
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json",
+      "title": "A spreadsheet cell",
+      "type": "string"
     }
   }
 });

@@ -2,12 +2,12 @@ import React from 'react';
 import { fromJS } from 'immutable';
 
 export default function makeBackgroundPresenter(presenter) {
-  const BackgroundPresenter = ({ config, renderPresenter }) => {
+  const BackgroundPresenter = ({ mapData, config, renderPresenter }) => {
     const presenter = config.get('presenter');
-    const style = config.remove('presenter');
+    const style = mapData.toJS();
 
     return (
-      <div style={style.toJS()}>
+      <div style={style}>
         {presenter ? renderPresenter(['config', 'presenter'], presenter) : null}
       </div>
     );
@@ -31,81 +31,89 @@ export default function makeBackgroundPresenter(presenter) {
           "const": "view",
           "default": "view"
         },
-        "config": {
+        "mapData": {
           "title": "Configuration",
-          "description": "Pre-specified configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
           "type": "object",
           "default": {},
           "properties": {
-            backgroundColor: {
+            "backgroundColor": {
               "title": "Background Color",
               "description": "Background color",
               "type": "string"
             },
-            color: {
+            "color": {
               "title": "Color",
               "description": "Text color",
               "type": "string"
             },
-            borderRadius: {
+            "borderRadius": {
               "title": "Border Radius",
               "description": "Pixel radius for rounded corners",
               "type": "string"
             },
-            width: {
+            "width": {
               "title": "Width",
               "description": "Width in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
             },
-            height: {
+            "height": {
               "title": "Height",
               "description": "Height in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
             },
-            textAlign: {
+            "textAlign": {
               "title": "Text Alignment",
               "description": "Horizontal text alignment",
               "default": "left",
               "type": "string",
               "enum": ["left", "center", "right"]
             },
-            marginTop: {
+            "marginTop": {
               "title": "Top Margin",
               "description": "Top margin in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
             },
-            marginBottom: {
+            "marginBottom": {
               "title": "Bottom Margin",
               "description": "Bottom margin in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
             },
-            marginLeft: {
+            "marginLeft": {
               "title": "Left Margin",
               "description": "Left margin in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
             },
-            marginRight: {
+            "marginRight": {
               "title": "Right Margin",
               "description": "Right margin in pixels",
               "type": "integer",
               "minimum": 0,
               "maximum": 2000
-            },
-            presenter: {
+            }
+          }
+        },
+        "config": {
+          "title": "Configuration",
+          "description": "Pre-specified configuration",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "presenter": {
               "title": "Presenter",
               "description": "Presenter to render within this view.",
-              "$comment": "URL",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
+              "linkable": false
             }
           }
         }

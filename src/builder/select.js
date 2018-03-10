@@ -57,15 +57,30 @@ export default function makeSelectPresenter(presenter) {
           "properties": {
             "options": {
               "title": "Options",
-              "description": "The result of this formula should be a 2-dimensional values and corresponding labels.",
+              "description": "Values and labels for all presented options",
               "default": [],
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json"
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": [
+                  {
+                    "title": "Option value",
+                    "description": "When this option is selected, this is the value that will be used",
+                    "type": "string"
+                  },
+                  {
+                    "title": "Option label",
+                    "description": "This is the label shown to the user for this option",
+                    "type": "string"
+                  }
+                ]
+              }
             },
             "value": {
               "title": "Value",
               "description": "The cell to read and write the selected value to.",
               "default": "",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json"
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json"
             }
           }
         }

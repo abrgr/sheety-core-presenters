@@ -1,12 +1,14 @@
 import { fromJS } from 'immutable';
 import Content from './content';
-import Formula from './formula';
 import Presenter from './presenter';
+import RefRange from './ref-range';
+import RefCell from './ref-cell';
 
 // we associate any special configurers with particular schema references
 const configurersAndSchemasBySchemaURI = fromJS({
   "http://sheetyapp.com/schemas/core-presenters/configurers/content.json": {
     configurer: Content,
+    linkable: true,
     schema: {
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/content.json",
@@ -15,18 +17,9 @@ const configurersAndSchemasBySchemaURI = fromJS({
       "type": "string"
     }
   },
-  "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json": {
-    configurer: Formula,
-    schema: {
-      "$schema": "http://json-schema.org/schema#",
-      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json",
-      "title": "Spreadsheet formula to evaluate",
-      "description": "Spreadsheet formula to evaluate",
-      "type": "string"
-    }
-  },
   "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json": {
     configurer: Presenter,
+    linkable: false,
     schema: {
       "$schema": "http://json-schema.org/schema#",
       "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
@@ -60,6 +53,30 @@ const configurersAndSchemasBySchemaURI = fromJS({
           "type": "object"
         }
       }
+    }
+  },
+  "http://sheetyapp.com/schemas/core-presenters/configurers/cell-range.json": {
+    configurer: RefRange,
+    linkable: false,
+    schema: {
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/cell-range.json",
+      "title": "Range of cells",
+      "description": "Range of spreadsheet cells",
+      "type": "array",
+      "items": {
+        "type": "array"
+      }
+    }
+  },
+  "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json": {
+    configurer: RefCell,
+    linkable: false,
+    schema: {
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json",
+      "title": "A spreadsheet cell",
+      "type": "string"
     }
   }
 });

@@ -200,8 +200,8 @@ function makeSpreadsheetPresenter(presenter) {
         "arrayData": {
           "title": "Array data",
           "description": "An A1 reference to the data to fill the spreadsheet with.",
-          "default": "",
-          "type": "string"
+          "default": [],
+          "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/cell-range.json"
         },
         "config": {
           "title": "Configuration",
@@ -211,25 +211,30 @@ function makeSpreadsheetPresenter(presenter) {
           "properties": {
             "formatting": {
               "title": "Formatting",
-              "description": "Map from A1 range references that are relative to the upper-left corner of this view of the spreadsheet to a map from style properties to their values.",
+              "description": "List of A1 range references that are relative to the upper-left corner of this view of the spreadsheet and the corresponding style properties to apply to the range.",
               "type": "array",
+              "linkable": false,
               "items": {
                 "title": "Format",
                 "type": "object",
+                "linkable": false,
                 "properties": {
                   "range": {
                     "title": "Range reference",
                     "description": "A1 range reference (relative to upper-left of array data)",
-                    "type": "string"
+                    "type": "string",
+                    "linkable": false
                   },
                   "style": {
                     "title": "Style",
                     "description": "The style for the range of cells",
                     "type": "object",
+                    "linkable": false,
                     "properties": {
                       "backgroundColor": {
                         "title": "Background color",
-                        "type": "string"
+                        "type": "string",
+                        "linkable": false
                       }
                     }
                   }
@@ -240,34 +245,40 @@ function makeSpreadsheetPresenter(presenter) {
               "title": "Merges",
               "description": "List of A1 ranges to merge.",
               "type": "array",
+              "linkable": false,
               "items": {
                 "title": "A1 range",
                 "description": "A1 range to merge (e.g. A1:B7)",
-                "type": "string"
+                "type": "string",
+                "linkable": false
               }
             },
             "showColumnHeaders": {
               "title": "Show Column Headers",
               "description": "Should we show column headers (e.g. A, B, C, ...)?",
               "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "linkable": false
             },
             "showRowHeaders": {
               "title": "Show Row Headers",
               "description": "Should we show row headers (e.g. 1, 2, 3, ...)?",
               "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "linkable": false
             },
             "userEditableRanges": {
               "title": "User editable ranges",
               "description": "Which ranges are users able to edit",
               "default": [],
               "type": "array",
+              "linkable": false,
               "items": {
                 "title": "User editable range",
                 "description": "A1 range reference (relative to upper-left of array data)",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "linkable": false
               }
             }
           }

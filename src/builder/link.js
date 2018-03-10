@@ -44,8 +44,8 @@ export default function makeLinkPresenter(presenter) {
           "default": "link"
         },
         "mapData": {
-          "title": "Spreadsheet data",
-          "description": "Formulas that will be evaluated against the spreadsheet",
+          "title": "Configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
           "type": "object",
           "default": {},
           "properties": {
@@ -66,7 +66,8 @@ export default function makeLinkPresenter(presenter) {
             "presenter": {
               "title": "Presenter",
               "description": "The presenter to render that, when clicked, will take the user to the specified URL.",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
+              "linkable": false
             }
           }
         }

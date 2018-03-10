@@ -73,25 +73,30 @@ export default function makeGridPresenter(presenter) {
               "title": "Rows",
               "description": "Specifies a row of the grid.",
               "type": "array",
+              "linkable": false,
               "items": {
                 "title": "Row",
                 "type": "array",
+                "linkable": false,
                 "items": {
                   "title": "Cell",
                   "type": "object",
                   "default": {},
+                  "linkable": false,
                   "properties": {
                     "width": {
                       "title": "Width",
                       "description": "Number of columns this presenter will occupy.",
                       "type": "integer",
                       "minimum": 1,
-                      "maximum": 12
+                      "maximum": 12,
+                      "linkable": false
                     },
                     "presenter": {
                       "title": "Presenter",
                       "description": "The presenter to render in this cell.",
-                      "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+                      "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
+                      "linkable": false
                     }
                   }
                 }

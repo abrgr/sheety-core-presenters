@@ -45,16 +45,16 @@ function makeTextPresenter(presenter) {
           "default": "text"
         },
         "mapData": {
-          "title": "Spreadsheet data",
-          "description": "Formulas that will be evaluated against the spreadsheet",
+          "title": "Configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
           "type": "object",
           "default": {},
           "properties": {
             "text": {
-              "title": "Text",
-              "description": "The formula to evaluate.  The value shown will be the result of the formula.",
+              "title": "Content",
+              "description": "The content to show",
               "default": "",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json"
+              "type": "string"
             }
           }
         }

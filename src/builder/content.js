@@ -3,8 +3,8 @@ import { fromJS } from 'immutable';
 import sanitizer from '../sanitizer';
 
 export default function makeContentPresenter(presenter) {
-  const ContentPresenter = ({ config }) => {
-    const content = config.get('content');
+  const ContentPresenter = ({ mapData }) => {
+    const content = mapData.get('content');
     const sanitizedContent = sanitizer.sanitize(content, uriRewriter);
 
     return (
@@ -36,9 +36,9 @@ export default function makeContentPresenter(presenter) {
           "const": "content",
           "default": "content"
         },
-        "config": {
+        "mapData": {
           "title": "Configuration",
-          "description": "Pre-specified configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
           "type": "object",
           "default": {},
           "properties": {

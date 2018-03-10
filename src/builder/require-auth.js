@@ -49,6 +49,20 @@ export default function makeRequireAuthPresenter(presenter) {
           "const": "require-auth",
           "default": "require-auth"
         },
+        "mapData": {
+          "title": "Configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
+          "type": "object",
+          "default": {},
+          "properties": {
+            "usePopup": {
+              "title": "Use popup",
+              "description": "Should we use a popup for sign in?",
+              "type": "boolean",
+              "default": false
+            },
+          }
+        },
         "config": {
           "title": "Configuration",
           "description": "Pre-specified configuration",
@@ -58,18 +72,14 @@ export default function makeRequireAuthPresenter(presenter) {
             "presenter": {
               "title": "Presenter",
               "description": "The presenter to render if the user is already authenticated.",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
-            },
-            "usePopup": {
-              "title": "Use popup",
-              "description": "Should we use a popup for sign in?",
-              "type": "boolean",
-              "default": false
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
+              "linkable": false
             },
             "signInContent": {
               "title": "Sign in content",
               "description": "The presenter to render above the sign in",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json"
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
+              "linkable": false
             },
             "providers": {
               "title": "Log in providers",
@@ -79,11 +89,13 @@ export default function makeRequireAuthPresenter(presenter) {
                 "title": "Log in provider",
                 "type": "object",
                 "default": {},
+                "linkable": false,
                 "properties": {
                   "provider": {
                     "title": "Provider",
                     "type": "string",
-                    "enum": ["google", "facebook", "twitter", "github", "email"]
+                    "enum": ["google", "facebook", "twitter", "github", "email"],
+                    "linkable": false
                   }
                 }
               }

@@ -44,8 +44,8 @@ export default function makeInputPresenter(presenter) {
           "default": "input"
         },
         "mapData": {
-          "title": "Options",
-          "description": "Formulas that will be evaluated against the spreadsheet",
+          "title": "Configuration",
+          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
           "type": "object",
           "default": {},
           "properties": {
@@ -53,7 +53,7 @@ export default function makeInputPresenter(presenter) {
               "title": "Value",
               "description": "The cell to read and write the value to.",
               "default": "",
-              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/formula.json"
+              "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json"
             },
             "inputType": {
               "title": "Input Type",
