@@ -2,8 +2,8 @@ import React from 'react';
 import sanitizer from '../sanitizer';
 
 export default function makeContentPresenter(presenter) {
-  const ContentPresenter = ({ config }) => {
-    const content = config.get('content');
+  const ContentPresenter = ({ mapData }) => {
+    const content = mapData.get('content');
     const sanitizedContent = sanitizer.sanitize(content, uriRewriter);
 
     return (

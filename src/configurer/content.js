@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactQuill from 'react-quill';
 
+import 'quill/dist/quill.snow.css';
+
 export default ({ value, encoders, decoders, onUpdate }) => (
   <ReactQuill
     value={decoders.string(true, value)}

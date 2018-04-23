@@ -1,11 +1,28 @@
 import React from 'react';
 import { fromJS } from 'immutable';
 import sanitizer from '../sanitizer';
+import ContentConfigurer from '../configurer/content';
 
 export default function makeContentPresenter(presenter) {
-  const ContentPresenter = ({ mapData }) => {
+  const ContentPresenter = ({
+    mapData,
+    isEditing,
+    encoders,
+    decoders,
+    onUpdate
+  }) => {
     const content = mapData.get('content');
     const sanitizedContent = sanitizer.sanitize(content, uriRewriter);
+
+    if ( isEditing ) {
+      return (
+        <ContentConfigurer
+          value={content}
+          encoders={encoders}
+          decoders={decoders}
+          onUpdate={onUpdate} />
+      );
+    }
 
     return (
       <div

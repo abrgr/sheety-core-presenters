@@ -17,9 +17,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function makeContentPresenter(presenter) {
   var ContentPresenter = function ContentPresenter(_ref) {
-    var config = _ref.config;
+    var mapData = _ref.mapData;
 
-    var content = config.get('content');
+    var content = mapData.get('content');
     var sanitizedContent = _sanitizer2.default.sanitize(content, uriRewriter);
 
     return _react2.default.createElement('div', {

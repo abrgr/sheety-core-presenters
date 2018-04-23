@@ -4,12 +4,12 @@ services:
     image: node:8.9.4-alpine
     working_dir: "/app"
     ports:
-     - "3000:3000"
+     - "8989:8989"
     environment:
      - "YARN_CACHE_FOLDER=/yarn-cache"
      - "CHOKIDAR_USEPOLLING=true"
     volumes:
      - ".:/app"
      - "./.yarn-cache:/yarn-cache"
-    command: "npm run start"
+    command: "npm run cosmos"
     network_mode: "bridge"
