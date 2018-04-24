@@ -1,0 +1,12 @@
+/* material-ui inserts an un-stylable div under the button */
+.grid-layout-add-cell > button > * {
+  height: 100%;
+  line-height: 100%;
+}
+.grid-layout-add-cell > button > div > div {
+  display: flex !important;
+  align-items: center !important;
+}
+.grid-layout-add-cell > button > div > div > span {
+  width: 100%;
+}
