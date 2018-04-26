@@ -9,7 +9,8 @@ export default function makeContentPresenter(presenter) {
     isEditing,
     encoders,
     decoders,
-    onUpdate
+    onUpdate,
+    path
   }) => {
     const content = mapData.get('content');
     const sanitizedContent = sanitizer.sanitize(content, uriRewriter);
@@ -20,7 +21,7 @@ export default function makeContentPresenter(presenter) {
           value={content}
           encoders={encoders}
           decoders={decoders}
-          onUpdate={onUpdate} />
+          onUpdate={onUpdate.bind(null, ['mapData', 'content'])} />
       );
     }
 
@@ -66,6 +67,7 @@ export default function makeContentPresenter(presenter) {
               "title": "Content",
               "description": "Rich content",
               "default": "",
+              "internallyConfigured": true,
               "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/content.json"
             }
           }

@@ -12,6 +12,8 @@ var _reactQuill = require('react-quill');
 
 var _reactQuill2 = _interopRequireDefault(_reactQuill);
 
+require('quill/dist/quill.snow.css');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (_ref) {

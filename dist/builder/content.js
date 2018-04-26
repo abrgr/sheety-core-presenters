@@ -15,14 +15,31 @@ var _sanitizer = require('../sanitizer');
 
 var _sanitizer2 = _interopRequireDefault(_sanitizer);
 
+var _content = require('../configurer/content');
+
+var _content2 = _interopRequireDefault(_content);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function makeContentPresenter(presenter) {
   var ContentPresenter = function ContentPresenter(_ref) {
-    var mapData = _ref.mapData;
+    var mapData = _ref.mapData,
+        isEditing = _ref.isEditing,
+        encoders = _ref.encoders,
+        decoders = _ref.decoders,
+        onUpdate = _ref.onUpdate,
+        path = _ref.path;
 
     var content = mapData.get('content');
     var sanitizedContent = _sanitizer2.default.sanitize(content, uriRewriter);
+
+    if (isEditing) {
+      return _react2.default.createElement(_content2.default, {
+        value: content,
+        encoders: encoders,
+        decoders: decoders,
+        onUpdate: onUpdate.bind(null, ['mapData', 'content']) });
+    }
 
     return _react2.default.createElement(
       'div',
@@ -66,6 +83,7 @@ function makeContentPresenter(presenter) {
               "title": "Content",
               "description": "Rich content",
               "default": "",
+              "internallyConfigured": true,
               "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/content.json"
             }
           }

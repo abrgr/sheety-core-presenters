@@ -1,23 +1,129 @@
-import React from 'react';
-import { fromJS } from 'immutable';
-import { Tabs, Tab } from 'material-ui/Tabs';
+import React, { Component } from 'react';
+import { fromJS, Map } from 'immutable';
+import AutoComplete from 'material-ui/AutoComplete';
+import EditPresenterIcon from 'material-ui/svg-icons/editor/border-inner';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import equalPaths from './equal-paths';
 
 export default function makeRouterPresenter(presenter) {
-  const RouterPresenter = ({ config, renderPresenter }) => {
-    const routes = config.get('routes');
+  class RouterPresenter extends Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        selectedRoute: null,
+        partialRoute: null
+      };
+    }
 
-    return (
-      <Tabs>
-        {routes.map((routeConfig, idx) => (
-          <Tab
-            key={routeConfig.get('path')}
-            label={routeConfig.get('path')}>
-            {renderPresenter(['config', 'routes', idx, 'presenter'], routeConfig.get('presenter'))}
-          </Tab>
-        )).valueSeq()}
-      </Tabs>
+    render() {
+      const {
+        path,
+        selectedPath,
+        isEditing,
+        config,
+        renderPresenter,
+        onSelectPresenterForEditing
+      } = this.props;
+      const routes = config.get('routes');
+
+      const { selectedRoute, partialRoute } = this.state;
+      const selectedIdx = routes.findIndex(r => r.get('path') === selectedRoute);
+
+      const newRoutes = !partialRoute || this.haveRoute(partialRoute)
+                      ? []
+                      : [partialRoute];
+
+      const routeDataSource = routes.map(routeConfig => ({
+        label: routeConfig.get('path'),
+        value: routeConfig.get('path')
+      })).toJS().concat(
+        newRoutes.map(r => ({
+          label: `${r} (New)`,
+          value: r,
+          isNew: true
+        }))
+      );
+
+      const presenter = routes.getIn([selectedIdx, 'presenter']);
+      const presenterPath = ['config', 'routes', selectedIdx, 'presenter'];
+
+      return (
+        <div>
+          <AutoComplete
+            fullWidth
+            hintText="/product/:name"
+            floatingLabelText="URL Path"
+            onNewRequest={this.onSetRoute}
+            onUpdateInput={this.onSetParitalRoute}
+            searchText={partialRoute}
+            filter={AutoComplete.fuzzyFilter}
+            dataSourceConfig={{
+              text: 'label',
+              value: 'value'
+            }}
+            dataSource={routeDataSource} />
+          {/* Render the presenter if we have one set or if we are editing it */
+           !!presenter || (!!selectedPath && equalPaths(path.concat(presenterPath), selectedPath))
+            ? (
+              renderPresenter(presenterPath, presenter)
+            ) : (
+              <div
+                style={{
+                  textAlign: 'center'
+                }}>
+                <FloatingActionButton
+                  disabled={!isEditing}
+                  onClick={(evt) => {
+                    evt.stopPropagation();
+                    onSelectPresenterForEditing(path.concat(presenterPath));
+                  }}>
+                  <EditPresenterIcon />
+                </FloatingActionButton>
+              </div>
+            )}
+        </div>
+      );
+    }
+
+    onSetRoute = selectedRoute => {
+      const { path, onUpdate, config, onSelectPresenterForEditing } = this.props;
+
+      const route = typeof selectedRoute === 'string'
+                  ? selectedRoute
+                  : selectedRoute.value;
+
+      if ( !this.haveRoute(route) ) {
+        const newRoutes = config.get('routes').push(new Map({
+          path: route,
+          presenter: null
+        }));
+
+        onUpdate(
+          path.concat(['config', 'routes']),
+          newRoutes
+        );
+
+        onSelectPresenterForEditing(path.concat(['config', 'routes', newRoutes.size - 1, 'presenter']));
+      }
+
+      this.setState({
+        selectedRoute: route,
+        partialRoute: route
+      });
+    };
+
+    onSetParitalRoute = partialRoute => {
+      this.setState({
+        partialRoute
+      });
+    };
+
+    haveRoute = route => (
+      this.props.config.get('routes').some(r => (
+        r.get('path') === route
+      ))
     );
-  };
+  }
 
   return presenter({
     schema: fromJS({
@@ -37,20 +143,6 @@ export default function makeRouterPresenter(presenter) {
           "const": "router",
           "default": "router"
         },
-        "mapData": {
-          "title": "Configuration",
-          "description": "Pre-set values and formulas that will be evaluated against the spreadsheet that will determine the appearance and behavior of this presenter",
-          "type": "object",
-          "default": {},
-          "properties": {
-            "base": {
-              "title": "Base route",
-              "description": "Prepend this to every route.  Useful if you want to mount one app at yoursite.com/app1 and another at yoursite.com/app2.",
-              "default": "",
-              "type": "string"
-            }
-          }
-        },
         "config": {
           "title": "Configuration",
           "description": "Pre-specified configuration",
@@ -63,6 +155,7 @@ export default function makeRouterPresenter(presenter) {
               "default": [],
               "type": "array",
               "linkable": false,
+              "internallyConfigured": true,
               "items": {
                 "title": "Route",
                 "type": "object",

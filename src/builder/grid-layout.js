@@ -5,6 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import EditPresenterIcon from 'material-ui/svg-icons/editor/border-inner';
+import equalPaths from './equal-paths';
 
 import 'bootstrap/dist/css/bootstrap-grid.css';
 import './grid-layout.css';
@@ -20,23 +21,27 @@ class Cell extends Component {
 
   render() {
     const {
+      selectedPath,
+      relativePath,
       path,
       cell,
       isEditing,
       renderPresenter,
       onRemove,
-      onEdit,
       onSelectPresenterForEditing
     } = this.props;
     const cellPresenter = cell.get('presenter');
     const width = cell.get('width');
     const isHovered = isEditing && this.state.isHovered;
+    const shouldRenderPresenter = !!cellPresenter || (!!selectedPath && equalPaths(path, selectedPath));
 
     return (
       <Paper
         zDepth={isHovered ? 2 : 0}
         style={{
-          background: 'transparent'
+          background: 'transparent',
+          paddingLeft: 0,
+          paddingRight: 0
         }}
         onMouseMove={evt => {
           this.setState({
@@ -68,38 +73,43 @@ class Cell extends Component {
             padding: 0
           }}
           label="x" />
-        <FlatButton
-          onClick={() => {
-            onSelectPresenterForEditing(path);
-          }}
-          style={{
-            transition: 'opacity 0.25s',
-            opacity: isHovered ? 1 : 0,
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            minWidth: 16,
-            minHeight: 16,
-            width: 16,
-            height: 16,
-            padding: 0,
-            lineHeight: 0
-          }}
-          labelStyle={{
-            padding: 0
-          }}>
-          <EditPresenterIcon
-            style={{
-              width: 16,
-              height: 16
-            }} />
-        </FlatButton>
-        {!!cellPresenter
-          ? renderPresenter(path, cellPresenter)
+        {shouldRenderPresenter
+          ? null
+          : (
+            <FlatButton
+              onClick={evt => {
+                evt.stopPropagation();
+                onSelectPresenterForEditing(path);
+              }}
+              style={{
+                transition: 'opacity 0.25s',
+                opacity: isHovered ? 1 : 0,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                minWidth: 16,
+                minHeight: 16,
+                width: 16,
+                height: 16,
+                padding: 0,
+                lineHeight: 0
+              }}
+              labelStyle={{
+                padding: 0
+              }}>
+              <EditPresenterIcon
+                style={{
+                  width: 16,
+                  height: 16
+                }} />
+            </FlatButton>
+          )}
+        {shouldRenderPresenter
+          ? renderPresenter(relativePath, cellPresenter)
           : (
             <FloatingActionButton
               disabled={!isEditing}
-              onClick={(evt) => {
+              onClick={evt => {
                 evt.stopPropagation();
                 onSelectPresenterForEditing(path);
               }}>
@@ -113,6 +123,7 @@ class Cell extends Component {
 
 export default function makeGridPresenter(presenter) {
   const GridPresenter = ({
+    selectedPath,
     isEditing,
     config = new Map(),
     renderPresenter,
@@ -129,11 +140,12 @@ export default function makeGridPresenter(presenter) {
         }}>
         <div className="container">
           {rows.map((row, rowIdx) => {
-            const rowPath = path.concat(['config', 'rows', rowIdx]);
+            const rowPath = ['config', 'rows', rowIdx];
             return (
               <div
                 key={`row-${rowIdx}`}
                 style={{
+                  minHeight: 20,
                   marginTop: 20,
                   marginBottom: 20,
                   position: 'relative'
@@ -145,7 +157,9 @@ export default function makeGridPresenter(presenter) {
                   return (
                     <Cell
                       key={`cell-${cellIdx}`}
-                      path={presenterPath}
+                      selectedPath={selectedPath}
+                      relativePath={presenterPath}
+                      path={path.concat(presenterPath)}
                       cell={cell}
                       renderPresenter={renderPresenter}
                       isEditing={isEditing}
@@ -209,7 +223,7 @@ export default function makeGridPresenter(presenter) {
               label="+"
               onClick={() => {
                 onUpdate(
-                  path.concat(['config', 'rows']),
+                  ['config', 'rows'],
                   rows.push(new List())
                 );
               }} />
@@ -247,6 +261,7 @@ export default function makeGridPresenter(presenter) {
               "description": "Specifies a row of the grid.",
               "type": "array",
               "linkable": false,
+              "internallyConfigured": true,
               "items": {
                 "title": "Row",
                 "type": "array",

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/cosmos/proxies.js"],"names":[],"mappings":";;;;;;AAAA;;;;AACA;;;;;;kBAEe,CACb,yBADa,EAEb,oCAFa,C","file":"proxies.js","sourcesContent":["import immutablePropsProxy from './immutable-props-proxy';\nimport muiProxy from './mui-proxy';\n\nexport default [\n  muiProxy(),\n  immutablePropsProxy()\n];\n"]}
