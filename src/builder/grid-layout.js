@@ -74,8 +74,7 @@ class Cell extends Component {
           }}
           label="x" />
         {shouldRenderPresenter
-          ? null
-          : (
+          ? (
             <FlatButton
               onClick={evt => {
                 evt.stopPropagation();
@@ -103,7 +102,7 @@ class Cell extends Component {
                   height: 16
                 }} />
             </FlatButton>
-          )}
+          ) : null}
         {shouldRenderPresenter
           ? renderPresenter(relativePath, cellPresenter)
           : (
