@@ -10,6 +10,104 @@ import equalPaths from './equal-paths';
 import 'bootstrap/dist/css/bootstrap-grid.css';
 import './grid-layout.css';
 
+class HorizontalResizer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      initialX: null,
+      pxPerWidthUnit: null
+    };
+  }
+
+  render() {
+    const { initialX } = this.state;
+    const isResizing = initialX !== null;
+
+    const { side } = this.props;
+    const pos = side === 'right'
+              ? { right: 0 }
+              : { left: 0 };
+    return (
+      <div
+        onMouseDown={this.onStartDrag}
+        onMouseUp={this.onEndDrag}
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          width: 5,
+          cursor: 'ew-resize',
+          ...pos
+        }}>
+        {isResizing
+          ? (
+            <div
+              onMouseMove={this.onDrag}
+              style={{
+                height: '100%',
+                width: '100%',
+                backgroundColor: 'rgba(0,0,0,0)',
+                opacity: '0',
+                position: 'fixed',
+                zIndex: '9999',
+                top: '0',
+                left: '0',
+                bottom: '0',
+                right: '0',
+              }} />
+          ) : null}
+      </div>
+    );
+  }
+
+  onStartDrag = evt => {
+    this.setState({
+      initialX: evt.nativeEvent.clientX,
+      pxPerWidthUnit: evt.target.parentElement.clientWidth / this.props.width
+    })
+  };
+
+  onDrag = evt => {
+    const { initialX, pxPerWidthUnit } = this.state;
+    if ( initialX === null ) {
+      return;
+    }
+
+    const x = evt.nativeEvent.clientX;
+    const offset = x - initialX;
+    if ( Math.abs(offset) < (pxPerWidthUnit / 2) ) {
+      // we have not moved at least half a unit
+      return;
+    }
+
+    const { side, canExpandLeft, canExpandRight } = this.props;
+
+    if ( side === 'left' && offset < 0 && !canExpandLeft ) {
+      // we're encroaching on our left neighbor and we can't expand in that direction
+      return;
+    }
+
+    if ( side === 'right' && offset > 0 && !canExpandRight ) {
+      // we're encroaching on our right neighbor and we can't expand in that direction
+      return;
+    }
+
+    // we round to the nearest unit to avoid any weird jumps
+    const roundedX = initialX + Math.round(offset / pxPerWidthUnit) * pxPerWidthUnit;
+    this.setState({
+      initialX: roundedX
+    }, () => {
+      this.props.onResize(offset, pxPerWidthUnit);
+    });
+  };
+
+  onEndDrag = evt => {
+    this.setState({
+      initialX: null
+    })
+  };
+}
+
 class Cell extends Component {
   constructor(props) {
     super(props);
@@ -21,6 +119,8 @@ class Cell extends Component {
 
   render() {
     const {
+      canExpandLeft,
+      canExpandRight,
       selectedPath,
       relativePath,
       path,
@@ -54,6 +154,18 @@ class Cell extends Component {
           });
         }}
         className={`col-${width}`}>
+        <HorizontalResizer
+          canExpandLeft={canExpandLeft}
+          canExpandRight={canExpandRight}
+          width={width}
+          side="left"
+          onResize={this.onResize.bind(null, 'left')} />
+        <HorizontalResizer
+          canExpandLeft={canExpandLeft}
+          canExpandRight={canExpandRight}
+          width={width}
+          side="right"
+          onResize={this.onResize.bind(null, 'right')} />
         <FlatButton
           onClick={() => { onRemove(); }}
           style={{
@@ -118,6 +230,15 @@ class Cell extends Component {
       </Paper>
     );
   }
+
+  onResize = (side, movementX, pxPerWidthUnit) => {
+    const { onAdjustWidth, cell } = this.props;
+    const sign = side === 'left' ? -1 : 1;
+    const offset = sign * Math.round(movementX / pxPerWidthUnit);
+    if ( offset !== 0 ) {
+      onAdjustWidth(side, offset);
+    }
+  };
 }
 
 export default function makeGridPresenter(presenter) {
@@ -140,6 +261,7 @@ export default function makeGridPresenter(presenter) {
         <div className="container">
           {rows.map((row, rowIdx) => {
             const rowPath = ['config', 'rows', rowIdx];
+            const totalWidth = row.reduce((sum, cell) => sum + cell.get('width'), 0);
             return (
               <div
                 key={`row-${rowIdx}`}
@@ -152,6 +274,8 @@ export default function makeGridPresenter(presenter) {
                 className="row">
                 {row.map((cell, cellIdx) => {
                   const presenterPath = rowPath.concat([cellIdx, 'presenter']);
+                  const canExpandLeft = cellIdx > 0 ? row.getIn([cellIdx - 1, 'width']) > 1 : false;
+                  const canExpandRight = totalWidth < 12 || (cellIdx < row.size - 1 && row.getIn([cellIdx + 1, 'width']) > 1);
 
                   return (
                     <Cell
@@ -163,6 +287,23 @@ export default function makeGridPresenter(presenter) {
                       renderPresenter={renderPresenter}
                       isEditing={isEditing}
                       onSelectPresenterForEditing={onSelectPresenterForEditing}
+                      canExpandLeft={canExpandLeft}
+                      canExpandRight={canExpandRight}
+                      onAdjustWidth={(side, change) => {
+                        const otherCellIdx = side === 'left'
+                                           ? cellIdx - 1
+                                           : cellIdx + 1;
+                        let nextRow = row.updateIn([cellIdx, 'width'], w => Math.max(1, w + change));
+                        if ( otherCellIdx >= 0 && otherCellIdx < row.size ) {
+                          nextRow = nextRow.updateIn([otherCellIdx, 'width'], w => Math.max(1, w - change));
+                        }
+                        const nextTotalWidth = nextRow.reduce((sum, cell) => sum + cell.get('width'), 0);
+                        if ( nextTotalWidth > 12 ) {
+                          return;
+                        }
+
+                        onUpdate(rowPath, nextRow);
+                      }}
                       onRemove={() => {
                         onUpdate(
                           rowPath,
@@ -171,7 +312,7 @@ export default function makeGridPresenter(presenter) {
                       }} />
                   );
                 })}
-                {isEditing
+                {isEditing && totalWidth < 12
                   ? (
                     <div
                       style={{

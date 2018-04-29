@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 exports.default = makeGridPresenter;
@@ -50,26 +52,152 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Cell = function (_Component) {
-  _inherits(Cell, _Component);
+var HorizontalResizer = function (_Component) {
+  _inherits(HorizontalResizer, _Component);
+
+  function HorizontalResizer(props) {
+    _classCallCheck(this, HorizontalResizer);
+
+    var _this = _possibleConstructorReturn(this, (HorizontalResizer.__proto__ || Object.getPrototypeOf(HorizontalResizer)).call(this, props));
+
+    _this.onStartDrag = function (evt) {
+      _this.setState({
+        initialX: evt.nativeEvent.clientX,
+        pxPerWidthUnit: evt.target.parentElement.clientWidth / _this.props.width
+      });
+    };
+
+    _this.onDrag = function (evt) {
+      var _this$state = _this.state,
+          initialX = _this$state.initialX,
+          pxPerWidthUnit = _this$state.pxPerWidthUnit;
+
+      if (initialX === null) {
+        return;
+      }
+
+      var x = evt.nativeEvent.clientX;
+      var offset = x - initialX;
+      if (Math.abs(offset) < pxPerWidthUnit / 2) {
+        // we have not moved at least half a unit
+        return;
+      }
+
+      var _this$props = _this.props,
+          side = _this$props.side,
+          canExpandLeft = _this$props.canExpandLeft,
+          canExpandRight = _this$props.canExpandRight;
+
+
+      if (side === 'left' && offset < 0 && !canExpandLeft) {
+        // we're encroaching on our left neighbor and we can't expand in that direction
+        return;
+      }
+
+      if (side === 'right' && offset > 0 && !canExpandRight) {
+        // we're encroaching on our right neighbor and we can't expand in that direction
+        return;
+      }
+
+      // we round to the nearest unit to avoid any weird jumps
+      var roundedX = initialX + Math.round(offset / pxPerWidthUnit) * pxPerWidthUnit;
+      _this.setState({
+        initialX: roundedX
+      }, function () {
+        _this.props.onResize(offset, pxPerWidthUnit);
+      });
+    };
+
+    _this.onEndDrag = function (evt) {
+      _this.setState({
+        initialX: null
+      });
+    };
+
+    _this.state = {
+      initialX: null,
+      pxPerWidthUnit: null
+    };
+    return _this;
+  }
+
+  _createClass(HorizontalResizer, [{
+    key: 'render',
+    value: function render() {
+      var initialX = this.state.initialX;
+
+      var isResizing = initialX !== null;
+
+      var side = this.props.side;
+
+      var pos = side === 'right' ? { right: 0 } : { left: 0 };
+      return _react2.default.createElement(
+        'div',
+        {
+          onMouseDown: this.onStartDrag,
+          onMouseUp: this.onEndDrag,
+          style: _extends({
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            width: 5,
+            cursor: 'ew-resize'
+          }, pos) },
+        isResizing ? _react2.default.createElement('div', {
+          onMouseMove: this.onDrag,
+          style: {
+            height: '100%',
+            width: '100%',
+            backgroundColor: 'rgba(0,0,0,0)',
+            opacity: '0',
+            position: 'fixed',
+            zIndex: '9999',
+            top: '0',
+            left: '0',
+            bottom: '0',
+            right: '0'
+          } }) : null
+      );
+    }
+  }]);
+
+  return HorizontalResizer;
+}(_react.Component);
+
+var Cell = function (_Component2) {
+  _inherits(Cell, _Component2);
 
   function Cell(props) {
     _classCallCheck(this, Cell);
 
-    var _this = _possibleConstructorReturn(this, (Cell.__proto__ || Object.getPrototypeOf(Cell)).call(this, props));
+    var _this2 = _possibleConstructorReturn(this, (Cell.__proto__ || Object.getPrototypeOf(Cell)).call(this, props));
 
-    _this.state = {
+    _this2.onResize = function (side, movementX, pxPerWidthUnit) {
+      var _this2$props = _this2.props,
+          onAdjustWidth = _this2$props.onAdjustWidth,
+          cell = _this2$props.cell;
+
+      var sign = side === 'left' ? -1 : 1;
+      var offset = sign * Math.round(movementX / pxPerWidthUnit);
+      if (offset !== 0) {
+        onAdjustWidth(side, offset);
+      }
+    };
+
+    _this2.state = {
       isHovered: false
     };
-    return _this;
+    return _this2;
   }
 
   _createClass(Cell, [{
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _props = this.props,
+          canExpandLeft = _props.canExpandLeft,
+          canExpandRight = _props.canExpandRight,
           selectedPath = _props.selectedPath,
           relativePath = _props.relativePath,
           path = _props.path,
@@ -82,6 +210,7 @@ var Cell = function (_Component) {
       var cellPresenter = cell.get('presenter');
       var width = cell.get('width');
       var isHovered = isEditing && this.state.isHovered;
+      var shouldRenderPresenter = !!cellPresenter || !!selectedPath && (0, _equalPaths2.default)(path, selectedPath);
 
       return _react2.default.createElement(
         _Paper2.default,
@@ -93,16 +222,28 @@ var Cell = function (_Component) {
             paddingRight: 0
           },
           onMouseMove: function onMouseMove(evt) {
-            _this2.setState({
+            _this3.setState({
               isHovered: true
             });
           },
           onMouseOut: function onMouseOut(evt) {
-            _this2.setState({
+            _this3.setState({
               isHovered: false
             });
           },
           className: 'col-' + width },
+        _react2.default.createElement(HorizontalResizer, {
+          canExpandLeft: canExpandLeft,
+          canExpandRight: canExpandRight,
+          width: width,
+          side: 'left',
+          onResize: this.onResize.bind(null, 'left') }),
+        _react2.default.createElement(HorizontalResizer, {
+          canExpandLeft: canExpandLeft,
+          canExpandRight: canExpandRight,
+          width: width,
+          side: 'right',
+          onResize: this.onResize.bind(null, 'right') }),
         _react2.default.createElement(_FlatButton2.default, {
           onClick: function onClick() {
             onRemove();
@@ -124,7 +265,7 @@ var Cell = function (_Component) {
             padding: 0
           },
           label: 'x' }),
-        _react2.default.createElement(
+        shouldRenderPresenter ? _react2.default.createElement(
           _FlatButton2.default,
           {
             onClick: function onClick(evt) {
@@ -152,8 +293,8 @@ var Cell = function (_Component) {
               width: 16,
               height: 16
             } })
-        ),
-        !!cellPresenter || !!selectedPath && (0, _equalPaths2.default)(path, selectedPath) ? renderPresenter(relativePath, cellPresenter) : _react2.default.createElement(
+        ) : null,
+        shouldRenderPresenter ? renderPresenter(relativePath, cellPresenter) : _react2.default.createElement(
           _FloatingActionButton2.default,
           {
             disabled: !isEditing,
@@ -194,6 +335,9 @@ function makeGridPresenter(presenter) {
         { className: 'container' },
         rows.map(function (row, rowIdx) {
           var rowPath = ['config', 'rows', rowIdx];
+          var totalWidth = row.reduce(function (sum, cell) {
+            return sum + cell.get('width');
+          }, 0);
           return _react2.default.createElement(
             'div',
             {
@@ -207,6 +351,8 @@ function makeGridPresenter(presenter) {
               className: 'row' },
             row.map(function (cell, cellIdx) {
               var presenterPath = rowPath.concat([cellIdx, 'presenter']);
+              var canExpandLeft = cellIdx > 0 ? row.getIn([cellIdx - 1, 'width']) > 1 : false;
+              var canExpandRight = totalWidth < 12 || cellIdx < row.size - 1 && row.getIn([cellIdx + 1, 'width']) > 1;
 
               return _react2.default.createElement(Cell, {
                 key: 'cell-' + cellIdx,
@@ -217,11 +363,32 @@ function makeGridPresenter(presenter) {
                 renderPresenter: renderPresenter,
                 isEditing: isEditing,
                 onSelectPresenterForEditing: onSelectPresenterForEditing,
+                canExpandLeft: canExpandLeft,
+                canExpandRight: canExpandRight,
+                onAdjustWidth: function onAdjustWidth(side, change) {
+                  var otherCellIdx = side === 'left' ? cellIdx - 1 : cellIdx + 1;
+                  var nextRow = row.updateIn([cellIdx, 'width'], function (w) {
+                    return Math.max(1, w + change);
+                  });
+                  if (otherCellIdx >= 0 && otherCellIdx < row.size) {
+                    nextRow = nextRow.updateIn([otherCellIdx, 'width'], function (w) {
+                      return Math.max(1, w - change);
+                    });
+                  }
+                  var nextTotalWidth = nextRow.reduce(function (sum, cell) {
+                    return sum + cell.get('width');
+                  }, 0);
+                  if (nextTotalWidth > 12) {
+                    return;
+                  }
+
+                  onUpdate(rowPath, nextRow);
+                },
                 onRemove: function onRemove() {
                   onUpdate(rowPath, row.delete(cellIdx));
                 } });
             }),
-            isEditing ? _react2.default.createElement(
+            isEditing && totalWidth < 12 ? _react2.default.createElement(
               'div',
               {
                 style: {
