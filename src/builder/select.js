@@ -4,7 +4,9 @@ import { fromJS } from 'immutable';
 export default function makeSelectPresenter(presenter) {
   const SelectPresenter = ({ mapData, mapDataQuery, setCellValues }) => {
     const value = mapData.get('value', null);
-    const options = mapData.get('options', []);
+    const mapOptions = mapData.get('options', []);
+    // so we can handle errors in sheets
+    const options = Array.isArray(mapOptions) ? mapOptions : [];
     const valueCell = mapDataQuery.get('value', '');
 
     return (

@@ -23,7 +23,9 @@ function makeSelectPresenter(presenter) {
         setCellValues = _ref.setCellValues;
 
     var value = mapData.get('value', null);
-    var options = mapData.get('options', []);
+    var mapOptions = mapData.get('options', []);
+    // so we can handle errors in sheets
+    var options = Array.isArray(mapOptions) ? mapOptions : [];
     var valueCell = mapDataQuery.get('value', '');
 
     return _react2.default.createElement(

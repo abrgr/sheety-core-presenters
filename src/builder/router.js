@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { fromJS, Map } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
 import AutoComplete from 'material-ui/AutoComplete';
 import EditPresenterIcon from 'material-ui/svg-icons/editor/border-inner';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import equalPaths from './equal-paths';
+import Action from '../configurer/action';
 
 export default function makeRouterPresenter(presenter) {
   class RouterPresenter extends Component {
@@ -22,7 +23,9 @@ export default function makeRouterPresenter(presenter) {
         isEditing,
         config,
         renderPresenter,
-        onSelectPresenterForEditing
+        onSelectPresenterForEditing,
+        onUpdate,
+        onEditAction
       } = this.props;
       const routes = config.get('routes');
 
@@ -62,6 +65,16 @@ export default function makeRouterPresenter(presenter) {
               value: 'value'
             }}
             dataSource={routeDataSource} />
+          {isEditing
+            ? (
+              <Action
+                schema={new Map()}
+                path={path.concat(['config', 'routes', selectedIdx, 'onRouteLaunched'])}
+                presenter={new Map()}
+                value={routes.getIn([selectedIdx, 'onRouteLaunched'])}
+                onUpdate={onUpdate}
+                onEditAction={onEditAction} />
+            ) : null}
           {/* Render the presenter if we have one set or if we are editing it */
            !!presenter || (!!selectedPath && equalPaths(path.concat(presenterPath), selectedPath))
             ? (
@@ -171,6 +184,12 @@ export default function makeRouterPresenter(presenter) {
                     "description": "Presenter to show at this url.",
                     "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
                     "linkable": false
+                  },
+                  "onRouteLaunched": {
+                    "title": "Page Loaded Action",
+                    "description": "Action to fire when this page loads",
+                    "linkable": false,
+                    "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/action.json"
                   }
                 }
               }
@@ -178,6 +197,47 @@ export default function makeRouterPresenter(presenter) {
           }
         }
       }
-    })
+    }),
+    getEventSchema: (path, presenter) => {
+      // path refers to config/routes/{n}/onRouteLaunched
+      const routePath = presenter.getIn(path.slice(0, -1).concat('path'));
+      const baseEventSchema = fromJS({
+        "properties": {
+          "fullPath": {
+            "title": "Full path for this page",
+            "type": "string"
+          }
+        }
+      });
+
+      const routeParams = getAllRouteParams(routePath);
+
+      return baseEventSchema.mergeIn(
+        ['properties'],
+        new Map(
+          routeParams.map(param => ([
+            param,
+            new Map({
+              title: param,
+              type: 'string'
+            })
+          ]))
+        )
+      );
+    }
   })(RouterPresenter);
+}
+
+function getAllRouteParams(route) {
+  const params = [];
+  const re = /\/:([^\/]+)/g;
+  let match = null;
+  do {
+    match = re.exec(route);
+    if ( !!match ) {
+      params.push(match[1]);
+    }
+  } while ( !!match );
+
+  return new List(params);
 }

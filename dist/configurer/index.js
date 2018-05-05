@@ -22,6 +22,10 @@ var _refCell = require('./ref-cell');
 
 var _refCell2 = _interopRequireDefault(_refCell);
 
+var _action = require('./action');
+
+var _action2 = _interopRequireDefault(_action);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // we associate any special configurers with particular schema references
@@ -97,6 +101,34 @@ var configurersAndSchemasBySchemaURI = (0, _immutable.fromJS)({
       "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/cell.json",
       "title": "A spreadsheet cell",
       "type": "string"
+    }
+  },
+  "http://sheetyapp.com/schemas/core-presenters/configurers/action.json": {
+    configurer: _action2.default,
+    linkable: false,
+    schema: {
+      "$schema": "http://json-schema.org/schema#",
+      "$id": "http://sheetyapp.com/schemas/core-presenters/configurers/action.json",
+      "title": "Action to perform",
+      "description": "An action to perform.  Actions are fired when specific events happen.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "description": "What type of action to perform",
+          "type": "string"
+        },
+        "configArgs": {
+          "title": "Pre-set arguments to the action",
+          "description": "Pre-set arguments to the action.",
+          "type": "object"
+        },
+        "args": {
+          "title": "Arguments taken from the firing event",
+          "description": "Arguments taken from the firing event.",
+          "type": "object"
+        }
+      }
     }
   }
 });

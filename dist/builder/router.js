@@ -30,6 +30,10 @@ var _equalPaths = require('./equal-paths');
 
 var _equalPaths2 = _interopRequireDefault(_equalPaths);
 
+var _action = require('../configurer/action');
+
+var _action2 = _interopRequireDefault(_action);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -102,7 +106,9 @@ function makeRouterPresenter(presenter) {
             isEditing = _props.isEditing,
             config = _props.config,
             renderPresenter = _props.renderPresenter,
-            onSelectPresenterForEditing = _props.onSelectPresenterForEditing;
+            onSelectPresenterForEditing = _props.onSelectPresenterForEditing,
+            onUpdate = _props.onUpdate,
+            onEditAction = _props.onEditAction;
 
         var routes = config.get('routes');
 
@@ -148,6 +154,13 @@ function makeRouterPresenter(presenter) {
               value: 'value'
             },
             dataSource: routeDataSource }),
+          isEditing ? _react2.default.createElement(_action2.default, {
+            schema: new _immutable.Map(),
+            path: path.concat(['config', 'routes', selectedIdx, 'onRouteLaunched']),
+            presenter: new _immutable.Map(),
+            value: routes.getIn([selectedIdx, 'onRouteLaunched']),
+            onUpdate: onUpdate,
+            onEditAction: onEditAction }) : null,
           /* Render the presenter if we have one set or if we are editing it */
           !!presenter || !!selectedPath && (0, _equalPaths2.default)(path.concat(presenterPath), selectedPath) ? renderPresenter(presenterPath, presenter) : _react2.default.createElement(
             'div',
@@ -219,6 +232,12 @@ function makeRouterPresenter(presenter) {
                     "description": "Presenter to show at this url.",
                     "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/presenter.json",
                     "linkable": false
+                  },
+                  "onRouteLaunched": {
+                    "title": "Page Loaded Action",
+                    "description": "Action to fire when this page loads",
+                    "linkable": false,
+                    "$ref": "http://sheetyapp.com/schemas/core-presenters/configurers/action.json"
                   }
                 }
               }
@@ -226,7 +245,42 @@ function makeRouterPresenter(presenter) {
           }
         }
       }
-    })
+    }),
+    getEventSchema: function getEventSchema(path, presenter) {
+      // path refers to config/routes/{n}/onRouteLaunched
+      var routePath = presenter.getIn(path.slice(0, -1).concat('path'));
+      var baseEventSchema = (0, _immutable.fromJS)({
+        "properties": {
+          "fullPath": {
+            "title": "Full path for this page",
+            "type": "string"
+          }
+        }
+      });
+
+      var routeParams = getAllRouteParams(routePath);
+
+      return baseEventSchema.mergeIn(['properties'], new _immutable.Map(routeParams.map(function (param) {
+        return [param, new _immutable.Map({
+          title: param,
+          type: 'string'
+        })];
+      })));
+    }
   })(RouterPresenter);
+}
+
+function getAllRouteParams(route) {
+  var params = [];
+  var re = /\/:([^\/]+)/g;
+  var match = null;
+  do {
+    match = re.exec(route);
+    if (!!match) {
+      params.push(match[1]);
+    }
+  } while (!!match);
+
+  return new _immutable.List(params);
 }
 //# sourceMappingURL=router.js.map
